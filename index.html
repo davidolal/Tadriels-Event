@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tadriel's Event Planning And Rentals</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+      background: #e6f2ff;
+      color: #000;
+    }
+    nav {
+      background-color: #000;
+      padding: 10px 0;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      text-align: center;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 18px;
+    }
+    nav a:hover {
+      color: #3498db;
+    }
+    .section {
+      padding: 100px 20px;
+      max-width: 1200px;
+      margin: auto;
+      background-color: white;
+      margin-top: 20px;
+      border-radius: 12px;
+    }
+    h2 {
+      color: #000;
+      text-align: center;
+    }
+    .product {
+      position: relative;
+      border-radius: 12px;
+      margin: 20px 0;
+      color: white;
+      padding: 60px 20px;
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+    }
+    .product::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 0;
+    }
+    .product-content {
+      position: relative;
+      z-index: 1;
+    }
+    .button {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 20px;
+      margin-top: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #2874a6;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .remove-button {
+      margin-left: 10px;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    footer {
+      background: #000;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      margin-top: 50px;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script>
+    let total = 0;
+    let items = [];
+
+    window.onload = () => {
+      emailjs.init("Sb8rwFzDPvaXS9zb1");
+    };
+
+    function addToCart(item, price) {
+      const li = document.createElement('li');
+      const index = items.length;
+      li.id = 'item-' + index;
+      li.textContent = `${item}: CAD $${price}`;
+      const btn = document.createElement('button');
+      btn.textContent = "Remove";
+      btn.className = "remove-button";
+      btn.onclick = () => removeItem(index, price);
+      li.appendChild(btn);
+      document.getElementById('cart').appendChild(li);
+      total += price;
+      document.getElementById('total').textContent = total.toFixed(2);
+      items.push({item, price});
+    }
+
+    function removeItem(index, price) {
+      const li = document.getElementById('item-' + index);
+      if (li) li.remove();
+      total -= price;
+      document.getElementById('total').textContent = total.toFixed(2);
+      items[index] = null;
+    }
+
+    function submitForm() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const notes = document.getElementById("notes").value;
+      const selectedItems = items.filter(Boolean);
+
+      if (!name || !email || !phone || selectedItems.length === 0) {
+        alert("Please complete all fields and add at least one item.");
+        return;
+      }
+
+      const templateParams = {
+        name,
+        email,
+        phone,
+        notes,
+        items: selectedItems.map(x => x.item).join(', '),
+        total: total.toFixed(2)
+      };
+
+      emailjs.send("service_k7jv1k8", "template_jcjho6c", templateParams)
+        .then(() => {
+          alert(`Payment of CAD $${total.toFixed(2)} received. Confirmation sent.`);
+          document.getElementById("detailsForm").reset();
+          document.getElementById("cart").innerHTML = '';
+          document.getElementById("total").textContent = '0';
+          total = 0;
+          items = [];
+        }, (error) => {
+          alert("Email sending failed.");
+          console.error(error);
+        });
+    }
+  </script>
+</head>
+<body>
+  <nav>
+    <a href="#rentals">Rentals</a>
+    <a href="#details">Details</a>
+    <a href="#about">About</a>
+    <a href="#terms">Terms</a>
+    <a href="#socials">Socials</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <div class="section" id="rentals">
+    <h2>Our Rentals</h2>
+    <div class="product" style="background-image: url('https://images.unsplash.com/photo-1594568287035-30c7c4a91da3');">
+      <div class="product-content">
+        <h3>Bounce House</h3>
+        <p>CAD $320</p>
+        <button class="button" onclick="addToCart('Bounce House', 320)">Rent</button>
+      </div>
+    </div>
+    <div class="product" style="background-image: url('https://images.unsplash.com/photo-1622411017796-1bfa2c82b745');">
+      <div class="product-content">
+        <h3>Balloons (per inch)</h3>
+        <p>CAD $35</p>
+        <button class="button" onclick="addToCart('Balloons', 35)">Rent</button>
+      </div>
+    </div>
+    <div class="product" style="background-image: url('https://images.unsplash.com/photo-1615996001373-6be7b07f53f6');">
+      <div class="product-content">
+        <h3>Backdrop</h3>
+        <p>CAD $350</p>
+        <button class="button" onclick="addToCart('Backdrop', 350)">Rent</button>
+      </div>
+    </div>
+    <div class="product" style="background-image: url('https://images.unsplash.com/photo-1584467735871-b5cdb6be7a7e');">
+      <div class="product-content">
+        <h3>Party Pack (All Three)</h3>
+        <p>CAD $705</p>
+        <button class="button" onclick="addToCart('Party Pack', 705)">Rent</button>
+      </div>
+    </div>
+    <ul id="cart"></ul>
+    <p>Total: CAD $<span id="total">0</span></p>
+  </div>
+
+  <div class="section" id="details">
+    <h2>Your Details</h2>
+    <form id="detailsForm" onsubmit="event.preventDefault(); submitForm();">
+      <input class="form-input" id="name" placeholder="Full Name" required />
+      <input class="form-input" id="email" placeholder="Email Address" type="email" required />
+      <input class="form-input" id="phone" placeholder="Phone Number" required />
+      <textarea class="form-input" id="notes" placeholder="Event Notes or Special Requests"></textarea>
+      <button class="button" type="submit">Pay and Send Confirmation</button>
+    </form>
+  </div>
+
+  <div class="section" id="about">
+    <h2>About Us</h2>
+    <p>Tadriel's Event Planning And Rentals is committed to providing exceptional event planning and rental services in Canada. With a keen eye for detail and a passion for creativity, we specialize in backdrops, balloons, decor, bounce houses, and party supplies. Our goal is to enhance every event we touch with our expertise and dedication.</p>
+  </div>
+
+  <div class="section" id="terms">
+    <h2>Terms and Conditions</h2>
+    <p><strong>1. Agreement Overview</strong><br>These Terms and Conditions govern the provision of party planning services provided by Tadriel's Event Planning And Rentals. By reading this Agreement, you agree to comply with the following terms and conditions.</p>
+    <p><strong>2. Services Provided</strong><br>Tadriel's Event Planning And Rentals includes the following services:<ul><li>Event concept development</li><li>Vendor management</li><li>Event design and theme implementation</li><li>On-site coordination on the event date</li><li>Budget planning and monitoring</li><li>Event timeline management</li></ul></p>
+    <p><strong>3. Client Responsibilities</strong><br>The Client agrees to provide necessary details, ensure venue access, and communicate updates promptly.</p>
+    <p><strong>4. Vendor Management</strong><br>Client is responsible for third-party contracts unless otherwise agreed.</p>
+    <p><strong>5. Liability</strong><br>Not responsible for accidents, venue damage, or third-party actions.</p>
+    <p><strong>6. Force Majeure</strong><br>Not liable for events outside our control.</p>
+    <p><strong>7. Confidentiality</strong><br>Client info remains private.</p>
+    <p><strong>8. Indemnification</strong><br>Client holds Planner harmless for claims outside their control.</p>
+    <p><strong>9. Governing Law</strong><br>Ontario, Canada jurisdiction.</p>
+    <p><strong>Acceptance of Terms</strong><br>By reading this, you agree to our terms.</p>
+  </div>
+
+  <div class="section" id="socials">
+    <h2>Follow Us</h2>
+    <p><a href="https://instagram.com/ontario_event_planner/" target="_blank">Instagram: @ontario_event_planner</a></p>
+  </div>
+
+  <div class="section" id="contact">
+    <h2>Contact Us</h2>
+    <p>Email: tadriels24@gmail.com</p>
+    <p>Phone: +1 365-384-0161</p>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Tadriel's Event Planning And Rentals. All rights reserved.</p>
+  </footer>
+</body>
+</html>
